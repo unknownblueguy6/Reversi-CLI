@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <utility>
+#include "init.hpp"
 #include "cell.hpp"
 #include "colour.hpp"
 
@@ -16,12 +17,13 @@ class Board
 		Board();
 		void draw();
 		bool isAtCurrPos(int, int);
+		void getMove();
 		
 	private:
 		unsigned l;
 		unsigned b;
-		unsigned currPosX;
-		unsigned currPosY;
+		unsigned x;
+		unsigned y;
 		std::vector<std::vector<Cell>> cells;
 };
 
@@ -29,8 +31,8 @@ Board::Board(){
 	l = LENGTH;
 	b = BREADTH;
 	cells = std::vector<std::vector<Cell>>(b, std::vector<Cell>(l, Cell()));
-	currPosX = (l-1)/2;
-	currPosY = (b-4)/2;
+	x = (l-1)/2;
+	y = (b-4)/2;
 	cells[(l-1)/2][(b-1)/2].state = WHITE;
 	cells[l/2][(b-1)/2].state = BLACK;
 	cells[(l-1)/2][b/2].state = BLACK;
@@ -102,6 +104,34 @@ void Board::draw(){
 	for(auto str: buf) std::cout << str;
 }
 
+void Board::getMove(){
+    KEY k = getKey();
+    switch (k){
+		case K_UP:
+			if (y)
+				--y;
+			return;
+
+		case K_DOWN:
+			if (y != b - 1)
+				++y;
+			return;
+
+		case K_LEFT:
+			if (x)
+				--x;
+			return;
+
+		case K_RIGHT:
+			if (x != l - 1)
+				++x;
+			return;
+
+		case K_SPACE: //placeholder
+			return;
+	}
+}
+
 inline bool Board::isAtCurrPos(int y, int x){
-	return x == currPosX && y == currPosY;
+	return x == this->x && y == this->y;
 } 

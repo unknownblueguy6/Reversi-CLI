@@ -2,5 +2,9 @@
 
 int main(){
 	Board board;
-	board.draw();
+	while(true){
+		system("clear"); 
+		board.draw();
+		board.getMove();
+	}
 }
