@@ -33,6 +33,7 @@ class Board
 		int x;
 		int y;
 		TURN turn;
+		COLOUR cursorCol;
 		std::vector<std::vector<Cell>> cells;
 };
 
@@ -41,8 +42,9 @@ Board::Board(){
 	b = BREADTH;
 	turn = PLAYER_ONE;
 	cells = std::vector<std::vector<Cell>>(b, std::vector<Cell>(l, Cell()));
-	x = (l-1)/2;
-	y = (b-4)/2;
+	x = 1;
+	y = 1;
+	cursorCol = RED;
 	cells[(l-1)/2][(b-1)/2].state = WHITE;
 	cells[l/2][(b-1)/2].state = BLACK;
 	cells[(l-1)/2][b/2].state = BLACK;
@@ -56,10 +58,10 @@ void Board::draw(){
 		if(j == 0){
 			s += "┏";
 				for(int i = 0; i < b-1; ++i){
-					if(isAtCurrPos(j, i)) s += blue_fg + "━━━" + reset +"┳";	
+					if(isAtCurrPos(j, i)) s += cursorCol + "━━━" + RESET +"┳";	
 					else s += "━━━┳";
 				}
-				if(isAtCurrPos(j, b-1)) s += blue_fg + "━━━" + reset +"┓\n";
+				if(isAtCurrPos(j, b-1)) s += cursorCol + "━━━" + RESET +"┓\n";
 				else s += "━━━┓\n"; 
 				buf.push_back(s);
 				s = "";
@@ -68,16 +70,16 @@ void Board::draw(){
 		if(j > 0 && j < l){
 			s += "┣";
 			for(int i = 0; i < b-1; ++i){
-				if(isAtCurrPos(j-1, i) || isAtCurrPos(j, i)) s += blue_fg + "━━━" + reset + "╋";
+				if(isAtCurrPos(j-1, i) || isAtCurrPos(j, i)) s += cursorCol + "━━━" + RESET + "╋";
 				else s += "━━━╋";
 			}
-			if(isAtCurrPos(j-1, b-1)|| isAtCurrPos(j, b-1)) s += blue_fg + "━━━" + reset +"┫\n";
+			if(isAtCurrPos(j-1, b-1)|| isAtCurrPos(j, b-1)) s += cursorCol + "━━━" + RESET +"┫\n";
 			else s += "━━━┫\n"; 
 			buf.push_back(s);
 			s = "";
 		}
 
-		if(isAtCurrPos(j, 0)) s += blue_fg + "┃" + reset;	
+		if(isAtCurrPos(j, 0)) s += cursorCol + "┃" + RESET;	
 		else s += "┃";
 
 		for(int i = 0; i < b; ++i){
@@ -92,7 +94,7 @@ void Board::draw(){
 				s += "⚪";
 				break;
 			}
-			if(isAtCurrPos(j, i) || isAtCurrPos(j, i+1)) s += blue_fg + " ┃" + reset;
+			if(isAtCurrPos(j, i) || isAtCurrPos(j, i+1)) s += cursorCol + " ┃" + RESET;
 			else s += " ┃";
 		}
 		s += "\n";
@@ -102,10 +104,10 @@ void Board::draw(){
 		if(j == l-1){
 			s += "┗";
 			for(int i = 0; i < b-1; ++i){
-				if(isAtCurrPos(j, i)) s += blue_fg + "━━━" + reset + "┻";
+				if(isAtCurrPos(j, i)) s += cursorCol + "━━━" + RESET + "┻";
 				else s += "━━━┻";
 			}
-			if(isAtCurrPos(j, b-1)) s += blue_fg + "━━━" + reset + "┛\n";
+			if(isAtCurrPos(j, b-1)) s += cursorCol + "━━━" + RESET + "┛\n";
 			else s += "━━━┛\n"; 
 			buf.push_back(s);
 			s = "";
@@ -119,24 +121,30 @@ void Board::getMove(){
     switch (k){
 		case K_UP:
 			if(isValidIndex(y-1, x)) --y;
+			if(isValidMove()) cursorCol = GREEN;
+			else cursorCol = RED;
 			return;
 
 		case K_DOWN:
 			if(isValidIndex(y+1, x)) ++y;
+			if(isValidMove()) cursorCol = GREEN;
+			else cursorCol = RED;
 			return;
 
 		case K_LEFT:
 			if(isValidIndex(y, x-1)) --x;
+			if(isValidMove()) cursorCol = GREEN;
+			else cursorCol = RED;
 			return;
 
 		case K_RIGHT:
 			if (isValidIndex(y, x+1)) ++x;
+			if(isValidMove()) cursorCol = GREEN;
+			else cursorCol = RED;
 			return;
 
 		case K_SPACE: //placeholder
-			if(isValidMove()){
-				placeDisk();
-			}
+			if(cursorCol == GREEN) placeDisk();
 			return;
 	}
 }
