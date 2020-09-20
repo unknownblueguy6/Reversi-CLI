@@ -10,6 +10,10 @@
 const unsigned LENGTH = 8;
 const unsigned BREADTH = 8;
 
+enum TURN{
+	PLAYER_ONE,
+	PLAYER_TWO
+};
 
 class Board
 {
@@ -18,18 +22,21 @@ class Board
 		void draw();
 		bool isAtCurrPos(int, int);
 		void getMove();
+		void placeDisk();
 		
 	private:
 		unsigned l;
 		unsigned b;
 		unsigned x;
 		unsigned y;
+		TURN turn;
 		std::vector<std::vector<Cell>> cells;
 };
 
 Board::Board(){
 	l = LENGTH;
 	b = BREADTH;
+	turn = PLAYER_ONE;
 	cells = std::vector<std::vector<Cell>>(b, std::vector<Cell>(l, Cell()));
 	x = (l-1)/2;
 	y = (b-4)/2;
@@ -128,8 +135,21 @@ void Board::getMove(){
 			return;
 
 		case K_SPACE: //placeholder
+			placeDisk();
 			return;
 	}
+}
+
+void Board::placeDisk(){
+	if(turn == PLAYER_ONE){
+		cells[y][x].state = BLACK;
+		turn = PLAYER_TWO;
+	}
+	else{
+		cells[y][x].state = WHITE;
+		turn = PLAYER_ONE;
+	}
+
 }
 
 inline bool Board::isAtCurrPos(int y, int x){
