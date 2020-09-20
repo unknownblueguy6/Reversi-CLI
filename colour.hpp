@@ -1,6 +1,7 @@
 #pragma once
 
-using COLOUR = const std::string;
+using COLOUR = std::string;
 
-COLOUR blue_fg = "\033[1;34m";
-COLOUR reset = "\033[0m";
+const COLOUR RED = "\033[1;31m";
+const COLOUR GREEN = "\033[1;32m";
+const COLOUR RESET = "\033[0m";
