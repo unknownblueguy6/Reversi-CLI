@@ -7,8 +7,8 @@
 #include "cell.hpp"
 #include "colour.hpp"
 
-const unsigned LENGTH = 8;
-const unsigned BREADTH = 8;
+const int LENGTH = 8;
+const int BREADTH = 8;
 
 enum TURN{
 	PLAYER_ONE,
@@ -20,15 +20,18 @@ class Board
 	public:
 		Board();
 		void draw();
-		bool isAtCurrPos(int, int);
 		void getMove();
 		void placeDisk();
+		bool isValidMove();
+		int noOfFlippedDiscs(Cell_States, int, int, int, int, int);
+		bool isAtCurrPos(int, int);
+		bool isValidIndex(int , int);
 		
 	private:
-		unsigned l;
-		unsigned b;
-		unsigned x;
-		unsigned y;
+		int l;
+		int b;
+		int x;
+		int y;
 		TURN turn;
 		std::vector<std::vector<Cell>> cells;
 };
@@ -49,10 +52,10 @@ Board::Board(){
 void Board::draw(){
 	std::vector<std::string> buf;
 	std::string s = "";
-	for(unsigned j = 0; j < l; ++j){
+	for(int j = 0; j < l; ++j){
 		if(j == 0){
 			s += "┏";
-				for(unsigned i = 0; i < b-1; ++i){
+				for(int i = 0; i < b-1; ++i){
 					if(isAtCurrPos(j, i)) s += blue_fg + "━━━" + reset +"┳";	
 					else s += "━━━┳";
 				}
@@ -64,7 +67,7 @@ void Board::draw(){
 
 		if(j > 0 && j < l){
 			s += "┣";
-			for(unsigned i = 0; i < b-1; ++i){
+			for(int i = 0; i < b-1; ++i){
 				if(isAtCurrPos(j-1, i) || isAtCurrPos(j, i)) s += blue_fg + "━━━" + reset + "╋";
 				else s += "━━━╋";
 			}
@@ -77,7 +80,7 @@ void Board::draw(){
 		if(isAtCurrPos(j, 0)) s += blue_fg + "┃" + reset;	
 		else s += "┃";
 
-		for(unsigned i = 0; i < b; ++i){
+		for(int i = 0; i < b; ++i){
 			switch(cells[j][i].state){
 			case EMPTY:
 				s += "  ";
@@ -98,7 +101,7 @@ void Board::draw(){
 		
 		if(j == l-1){
 			s += "┗";
-			for(unsigned i = 0; i < b-1; ++i){
+			for(int i = 0; i < b-1; ++i){
 				if(isAtCurrPos(j, i)) s += blue_fg + "━━━" + reset + "┻";
 				else s += "━━━┻";
 			}
@@ -115,27 +118,25 @@ void Board::getMove(){
     KEY k = getKey();
     switch (k){
 		case K_UP:
-			if (y)
-				--y;
+			if(isValidIndex(y-1, x)) --y;
 			return;
 
 		case K_DOWN:
-			if (y != b - 1)
-				++y;
+			if(isValidIndex(y+1, x)) ++y;
 			return;
 
 		case K_LEFT:
-			if (x)
-				--x;
+			if(isValidIndex(y, x-1)) --x;
 			return;
 
 		case K_RIGHT:
-			if (x != l - 1)
-				++x;
+			if (isValidIndex(y, x+1)) ++x;
 			return;
 
 		case K_SPACE: //placeholder
-			placeDisk();
+			if(isValidMove()){
+				placeDisk();
+			}
 			return;
 	}
 }
@@ -152,6 +153,88 @@ void Board::placeDisk(){
 
 }
 
-inline bool Board::isAtCurrPos(int y, int x){
-	return x == this->x && y == this->y;
+bool Board::isValidMove(){
+	if(cells[y][x].state != EMPTY) return false;
+	
+	Cell_States s = turn == PLAYER_ONE ? BLACK : WHITE;
+	std::vector<bool> dirs;
+	
+	for(int j = -1; j <= 1; ++j){
+		for(int i = -1; i <= 1; ++i){
+			
+			if(j == 0 && i == 0){
+				dirs.push_back(false);
+				continue;
+			}
+			
+			if(isValidIndex(y+j, x+i)){
+				if(cells[y+j][x+i].state == EMPTY) dirs.push_back(false);
+				else if(cells[y+j][x+i].state == s) dirs.push_back(false);
+				else dirs.push_back(true);  
+			}
+
+			else dirs.push_back(false);
+		}
+	}
+
+	int search_dir_x, search_dir_y;
+
+	for(int k = 0; k < 9; ++k){
+		if(dirs[k]){
+
+			switch(k){
+				case 0:
+				case 1:
+				case 2:
+					search_dir_y = -1;
+					break;
+				case 3:
+				case 5:
+					search_dir_y =  0;
+					break;
+				case 6:
+				case 7:
+				case 8:
+					search_dir_y = +1;
+					break;
+			}
+
+			switch(k){
+				case 0:
+				case 3:
+				case 6:
+					search_dir_x = -1;
+					break;
+				case 1:
+				case 7:
+					search_dir_x =  0;
+					break;
+				case 2:
+				case 5:
+				case 8:
+					search_dir_x = +1;
+					break;
+			}
+
+			if(noOfFlippedDiscs(s, y+search_dir_y, x+search_dir_x, search_dir_y, search_dir_x, 0) > 0) return true;
+		}
+	}
+	return false;
+}
+
+int Board::noOfFlippedDiscs(Cell_States state, int curr_y, int curr_x, int dir_y, int dir_x, int flippedDiscs){
+	if(!isValidIndex(curr_y, curr_x)) return 0;
+	if(cells[curr_y][curr_x].state == EMPTY) return 0;
+	if(cells[curr_y][curr_x].state == state) return flippedDiscs;
+	else return noOfFlippedDiscs(state, curr_y + dir_y, curr_x + dir_x, dir_y, dir_x, flippedDiscs + 1);
+}
+
+inline bool Board::isValidIndex(int j, int i){
+	if(j <  0 || i <  0) return false;
+	if(j >= l || i >= b) return false;
+	return true;
+}
+
+inline bool Board::isAtCurrPos(int j, int i){
+	return i == x && j == y;
 } 
