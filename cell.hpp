@@ -24,6 +24,12 @@ Cell::Cell(){
 
 void Cell::flip(){
 	if(state == EMPTY) return;
-	if(state == BLACK) state = WHITE;
-	if(state == WHITE) state = BLACK;
+	if(state == BLACK) {
+		state = WHITE;
+		return;
+	}
+	if(state == WHITE){
+		state = BLACK;
+		return;
+	}
 }

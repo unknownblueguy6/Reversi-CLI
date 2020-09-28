@@ -23,9 +23,12 @@ class Board
 		void getMove();
 		void placeDisk();
 		bool isValidMove();
-		int noOfFlippedDiscs(Cell_States, int, int, int, int, int);
+		int  noOfFlippedDiscs(Cell_States, int, int, int, int, int);
+		void flipDiscs(Cell_States, int, int, int, int);
 		bool isAtCurrPos(int, int);
 		bool isValidIndex(int , int);
+		int  setDirX(int);
+		int  setDirY(int);
 		
 	private:
 		int l;
@@ -35,6 +38,7 @@ class Board
 		TURN turn;
 		COLOUR cursorCol;
 		std::vector<std::vector<Cell>> cells;
+		bool dirs[9];
 };
 
 Board::Board(){
@@ -143,8 +147,18 @@ void Board::getMove(){
 			else cursorCol = RED;
 			return;
 
-		case K_SPACE: //placeholder
-			if(cursorCol == GREEN) placeDisk();
+		case K_SPACE:
+			if(cursorCol == GREEN){
+				placeDisk();
+				for(int k = 0; k < 9; ++k){
+					if(dirs[k]){
+						int dir_y = setDirY(k);
+						int dir_x = setDirX(k);
+						flipDiscs(cells[y][x].state, y+dir_y, x+dir_x, dir_y, dir_x);
+					}
+				}
+				cursorCol = RED;
+			}
 			return;
 	}
 }
@@ -165,76 +179,89 @@ bool Board::isValidMove(){
 	if(cells[y][x].state != EMPTY) return false;
 	
 	Cell_States s = turn == PLAYER_ONE ? BLACK : WHITE;
-	std::vector<bool> dirs;
+	int count = 0;
 	
 	for(int j = -1; j <= 1; ++j){
 		for(int i = -1; i <= 1; ++i){
 			
 			if(j == 0 && i == 0){
-				dirs.push_back(false);
+				dirs[count++] = false;
 				continue;
 			}
 			
 			if(isValidIndex(y+j, x+i)){
-				if(cells[y+j][x+i].state == EMPTY) dirs.push_back(false);
-				else if(cells[y+j][x+i].state == s) dirs.push_back(false);
-				else dirs.push_back(true);  
+				if(cells[y+j][x+i].state == EMPTY) dirs[count] = false;
+				else if(cells[y+j][x+i].state == s) dirs[count] = false;
+				else dirs[count] = true;  
 			}
 
-			else dirs.push_back(false);
+			else dirs[count] = false;
+
+			++count;
 		}
 	}
 
 	int search_dir_x, search_dir_y;
-
+	bool flag = false;
 	for(int k = 0; k < 9; ++k){
 		if(dirs[k]){
-
-			switch(k){
-				case 0:
-				case 1:
-				case 2:
-					search_dir_y = -1;
-					break;
-				case 3:
-				case 5:
-					search_dir_y =  0;
-					break;
-				case 6:
-				case 7:
-				case 8:
-					search_dir_y = +1;
-					break;
+			search_dir_y = setDirY(k);
+			search_dir_x = setDirX(k);
+			if(noOfFlippedDiscs(s, y+search_dir_y, x+search_dir_x, search_dir_y, search_dir_x, 0) > 0){
+				flag = true;
 			}
-
-			switch(k){
-				case 0:
-				case 3:
-				case 6:
-					search_dir_x = -1;
-					break;
-				case 1:
-				case 7:
-					search_dir_x =  0;
-					break;
-				case 2:
-				case 5:
-				case 8:
-					search_dir_x = +1;
-					break;
-			}
-
-			if(noOfFlippedDiscs(s, y+search_dir_y, x+search_dir_x, search_dir_y, search_dir_x, 0) > 0) return true;
+			else dirs[k] = false;
 		}
 	}
-	return false;
+	return flag;
 }
 
-int Board::noOfFlippedDiscs(Cell_States state, int curr_y, int curr_x, int dir_y, int dir_x, int flippedDiscs){
+int Board::noOfFlippedDiscs(Cell_States state, int curr_y, int curr_x, int dir_y, int dir_x, int flippedDiscs = 0){
 	if(!isValidIndex(curr_y, curr_x)) return 0;
 	if(cells[curr_y][curr_x].state == EMPTY) return 0;
 	if(cells[curr_y][curr_x].state == state) return flippedDiscs;
 	else return noOfFlippedDiscs(state, curr_y + dir_y, curr_x + dir_x, dir_y, dir_x, flippedDiscs + 1);
+}
+
+void Board::flipDiscs(Cell_States state, int curr_y, int curr_x, int dir_y, int dir_x){
+	if(cells[curr_y][curr_x].state == state) return;
+	cells[curr_y][curr_x].flip();
+	flipDiscs(state, curr_y + dir_y, curr_x + dir_x, dir_y, dir_x);
+}
+
+inline int Board::setDirY(int k){
+	switch(k){
+		case 0:
+		case 1:
+		case 2:
+			return -1;
+		case 3:
+		case 5:
+			return  0;
+		case 6:
+		case 7:
+		case 8:
+			return +1;
+	}
+	return 0;
+}
+
+
+inline int Board::setDirX(int k){
+	switch(k){
+		case 0:
+		case 3:
+		case 6:
+			return -1;
+		case 1:
+		case 7:
+			return  0;
+		case 2:
+		case 5:
+		case 8:
+			return +1;
+	}
+	return 0;
 }
 
 inline bool Board::isValidIndex(int j, int i){
