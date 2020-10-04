@@ -7,7 +7,7 @@
 #include "cell.hpp"
 #include "colour.hpp"
 
-const int LENGTH = 8;
+const int LENGTH =  8;
 const int BREADTH = 8;
 
 enum TURN{
@@ -22,7 +22,7 @@ class Board
 		void draw();
 		void getMove();
 		void placeDisk();
-		bool isValidMove();
+		bool isValidMove(int, int);
 		int  noOfFlippedDiscs(Cell_States, int, int, int, int, int);
 		void flipDiscs(Cell_States, int, int, int, int);
 		bool isAtCurrPos(int, int);
@@ -35,6 +35,8 @@ class Board
 		int b;
 		int x;
 		int y;
+		int noOfBlackDisks;
+		int noOfWhiteDisks;
 		TURN turn;
 		COLOUR cursorCol;
 		std::vector<std::vector<Cell>> cells;
@@ -49,6 +51,7 @@ Board::Board(){
 	x = 1;
 	y = 1;
 	cursorCol = RED;
+	noOfBlackDisks = noOfWhiteDisks = 2;
 	cells[(l-1)/2][(b-1)/2].state = WHITE;
 	cells[l/2][(b-1)/2].state = BLACK;
 	cells[(l-1)/2][b/2].state = BLACK;
@@ -118,6 +121,7 @@ void Board::draw(){
 		}
 	}
 	for(auto str: buf) std::cout << str;
+	std::cout << noOfWhiteDisks << " " << noOfBlackDisks << "\n"; //debugging code
 }
 
 void Board::getMove(){
@@ -125,25 +129,25 @@ void Board::getMove(){
     switch (k){
 		case K_UP:
 			if(isValidIndex(y-1, x)) --y;
-			if(isValidMove()) cursorCol = GREEN;
+			if(isValidMove(y, x)) cursorCol = GREEN;
 			else cursorCol = RED;
 			return;
 
 		case K_DOWN:
 			if(isValidIndex(y+1, x)) ++y;
-			if(isValidMove()) cursorCol = GREEN;
+			if(isValidMove(y, x)) cursorCol = GREEN;
 			else cursorCol = RED;
 			return;
 
 		case K_LEFT:
 			if(isValidIndex(y, x-1)) --x;
-			if(isValidMove()) cursorCol = GREEN;
+			if(isValidMove(y, x)) cursorCol = GREEN;
 			else cursorCol = RED;
 			return;
 
 		case K_RIGHT:
 			if (isValidIndex(y, x+1)) ++x;
-			if(isValidMove()) cursorCol = GREEN;
+			if(isValidMove(y, x)) cursorCol = GREEN;
 			else cursorCol = RED;
 			return;
 
@@ -166,17 +170,19 @@ void Board::getMove(){
 void Board::placeDisk(){
 	if(turn == PLAYER_ONE){
 		cells[y][x].state = BLACK;
+		++noOfBlackDisks;
 		turn = PLAYER_TWO;
 	}
 	else{
 		cells[y][x].state = WHITE;
+		++noOfWhiteDisks;
 		turn = PLAYER_ONE;
 	}
 
 }
 
-bool Board::isValidMove(){
-	if(cells[y][x].state != EMPTY) return false;
+bool Board::isValidMove(int y_pos, int x_pos){
+	if(cells[y_pos][x_pos].state != EMPTY) return false;
 	
 	Cell_States s = turn == PLAYER_ONE ? BLACK : WHITE;
 	int count = 0;
@@ -189,9 +195,9 @@ bool Board::isValidMove(){
 				continue;
 			}
 			
-			if(isValidIndex(y+j, x+i)){
-				if(cells[y+j][x+i].state == EMPTY) dirs[count] = false;
-				else if(cells[y+j][x+i].state == s) dirs[count] = false;
+			if(isValidIndex(y_pos+j, x_pos+i)){
+				if(cells[y_pos+j][x_pos+i].state == EMPTY) dirs[count] = false;
+				else if(cells[y_pos+j][x_pos+i].state == s) dirs[count] = false;
 				else dirs[count] = true;  
 			}
 
@@ -207,7 +213,7 @@ bool Board::isValidMove(){
 		if(dirs[k]){
 			search_dir_y = setDirY(k);
 			search_dir_x = setDirX(k);
-			if(noOfFlippedDiscs(s, y+search_dir_y, x+search_dir_x, search_dir_y, search_dir_x, 0) > 0){
+			if(noOfFlippedDiscs(s, y_pos+search_dir_y, x_pos+search_dir_x, search_dir_y, search_dir_x, 0) > 0){
 				flag = true;
 			}
 			else dirs[k] = false;
@@ -226,6 +232,14 @@ int Board::noOfFlippedDiscs(Cell_States state, int curr_y, int curr_x, int dir_y
 void Board::flipDiscs(Cell_States state, int curr_y, int curr_x, int dir_y, int dir_x){
 	if(cells[curr_y][curr_x].state == state) return;
 	cells[curr_y][curr_x].flip();
+	if(state == WHITE){
+		++noOfWhiteDisks;
+		--noOfBlackDisks;
+	}
+	else if(state == BLACK){
+		++noOfBlackDisks;
+		--noOfWhiteDisks;
+	}
 	flipDiscs(state, curr_y + dir_y, curr_x + dir_x, dir_y, dir_x);
 }
 
