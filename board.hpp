@@ -25,6 +25,8 @@ class Board
 		bool isValidMove(int, int);
 		int  noOfFlippedDiscs(Cell_States, int, int, int, int, int);
 		void flipDiscs(Cell_States, int, int, int, int);
+		bool isGameOver();
+		bool isNeighbouringDisk(int, int);
 		bool isAtCurrPos(int, int);
 		bool isValidIndex(int , int);
 		int  setDirX(int);
@@ -121,7 +123,7 @@ void Board::draw(){
 		}
 	}
 	for(auto str: buf) std::cout << str;
-	std::cout << noOfWhiteDisks << " " << noOfBlackDisks << "\n"; //debugging code
+	//std::cout << noOfWhiteDisks << " " << noOfBlackDisks << "\n"; //debugging code
 }
 
 void Board::getMove(){
@@ -183,25 +185,27 @@ void Board::placeDisk(){
 
 bool Board::isValidMove(int y_pos, int x_pos){
 	if(cells[y_pos][x_pos].state != EMPTY) return false;
+	if(! isNeighbouringDisk(y_pos, x_pos)) return false;
 	
 	Cell_States s = turn == PLAYER_ONE ? BLACK : WHITE;
 	int count = 0;
-	
+	bool dirs_copy[9];
+
 	for(int j = -1; j <= 1; ++j){
 		for(int i = -1; i <= 1; ++i){
 			
 			if(j == 0 && i == 0){
-				dirs[count++] = false;
+				dirs_copy[count++] = false;
 				continue;
 			}
 			
 			if(isValidIndex(y_pos+j, x_pos+i)){
-				if(cells[y_pos+j][x_pos+i].state == EMPTY) dirs[count] = false;
-				else if(cells[y_pos+j][x_pos+i].state == s) dirs[count] = false;
-				else dirs[count] = true;  
+				if(cells[y_pos+j][x_pos+i].state == EMPTY) dirs_copy[count] = false;
+				else if(cells[y_pos+j][x_pos+i].state == s) dirs_copy[count] = false;
+				else dirs_copy[count] = true;  
 			}
 
-			else dirs[count] = false;
+			else dirs_copy[count] = false;
 
 			++count;
 		}
@@ -210,13 +214,18 @@ bool Board::isValidMove(int y_pos, int x_pos){
 	int search_dir_x, search_dir_y;
 	bool flag = false;
 	for(int k = 0; k < 9; ++k){
-		if(dirs[k]){
+		if(dirs_copy[k]){
 			search_dir_y = setDirY(k);
 			search_dir_x = setDirX(k);
 			if(noOfFlippedDiscs(s, y_pos+search_dir_y, x_pos+search_dir_x, search_dir_y, search_dir_x, 0) > 0){
 				flag = true;
 			}
-			else dirs[k] = false;
+			else dirs_copy[k] = false;
+		}
+	}
+	if(isAtCurrPos(y_pos, x_pos)){
+		for(int i = 0; i < 9; ++i){
+			dirs[i] = dirs_copy[i];
 		}
 	}
 	return flag;
@@ -241,6 +250,26 @@ void Board::flipDiscs(Cell_States state, int curr_y, int curr_x, int dir_y, int 
 		--noOfWhiteDisks;
 	}
 	flipDiscs(state, curr_y + dir_y, curr_x + dir_x, dir_y, dir_x);
+}
+
+bool Board::isGameOver(){
+	for(int j = 0; j < l; ++j){
+		for(int i = 0; i < b; ++i){
+			if(isValidMove(j, i)) return false;
+		}
+	}
+	return true;
+}
+
+bool Board::isNeighbouringDisk(int y_pos, int x_pos){
+	for(int j = -1; j <= 1; ++j){
+		for(int i = -1; i <= 1; ++i){
+			if (j == 0 && i == 0) continue;
+			if (!isValidIndex(y_pos+j, x_pos+i)) continue;
+			if (cells[y_pos+j][x_pos+i].state != EMPTY) return true;
+		}
+	}
+	return false;
 }
 
 inline int Board::setDirY(int k){
