@@ -27,6 +27,7 @@ class Board
 		int  noOfFlippedDiscs(Cell_States, int, int, int, int, int);
 		void flipDiscs(Cell_States, int, int, int, int);
 		bool isGameOver();
+		void declareWinner();
 		bool isNeighbouringDisk(int, int);
 		bool isAtCurrPos(int, int);
 		bool isValidIndex(int , int);
@@ -260,6 +261,15 @@ bool Board::isGameOver(){
 		}
 	}
 	return true;
+}
+
+void Board::declareWinner(){
+	std::cout << "\n";
+	std::string winner_text;
+	if(noOfBlackDisks > noOfWhiteDisks) winner_text = "Player One is the Winner!";
+	else if(noOfWhiteDisks > noOfBlackDisks) winner_text = "Player Two is the Winner!";
+	else winner_text = "It is a Tie!";
+	std::cout << GREEN << winner_text << "\n" << RESET;
 }
 
 bool Board::isNeighbouringDisk(int y_pos, int x_pos){
