@@ -8,7 +8,7 @@ This is the project for my CO203-Object Oriented Programming course.
 1. Clone the repo.
 2. Compile reversi.cpp and run.
    ```
-   $g++ reversi.cpp -o && ./a.out
+   $ g++ reversi.cpp && ./a.out
    ```
 
 # Instructions
