@@ -6,6 +6,7 @@
 #include "init.hpp"
 #include "cell.hpp"
 #include "colour.hpp"
+#include "display.hpp"
 
 const int LENGTH =  8;
 const int BREADTH = 8;
@@ -21,6 +22,7 @@ class Board
 	public:
 		Board();
 		void draw();
+		void updateBoardOntoBuffer();
 		void getMove();
 		void placeDisk();
 		bool isValidMove(int, int);
@@ -43,6 +45,7 @@ class Board
 		int noOfWhiteDisks;
 		TURN turn;
 		COLOUR cursorCol;
+		std::vector<std::string> buf;
 		std::vector<std::vector<Cell>> cells;
 		bool dirs[9];
 };
@@ -62,8 +65,7 @@ Board::Board(){
 	cells[l/2][b/2].state = WHITE;
 }
 
-void Board::draw(){
-	std::vector<std::string> buf;
+void Board::updateBoardOntoBuffer(){
 	std::string s = std::string(PADDING, ' ');
 	for(int j = 0; j < l; ++j){
 		if(j == 0){
@@ -72,8 +74,8 @@ void Board::draw(){
 					if(isAtCurrPos(j, i)) s += cursorCol + "━━━" + RESET +"┳";	
 					else s += "━━━┳";
 				}
-				if(isAtCurrPos(j, b-1)) s += cursorCol + "━━━" + RESET +"┓\n";
-				else s += "━━━┓\n"; 
+				if(isAtCurrPos(j, b-1)) s += cursorCol + "━━━" + RESET +"┓";
+				else s += "━━━┓"; 
 				buf.push_back(s);
 				s = std::string(PADDING, ' ');
 		}
@@ -84,8 +86,8 @@ void Board::draw(){
 				if(isAtCurrPos(j-1, i) || isAtCurrPos(j, i)) s += cursorCol + "━━━" + RESET + "╋";
 				else s += "━━━╋";
 			}
-			if(isAtCurrPos(j-1, b-1)|| isAtCurrPos(j, b-1)) s += cursorCol + "━━━" + RESET +"┫\n";
-			else s += "━━━┫\n"; 
+			if(isAtCurrPos(j-1, b-1)|| isAtCurrPos(j, b-1)) s += cursorCol + "━━━" + RESET +"┫";
+			else s += "━━━┫"; 
 			buf.push_back(s);
 			s = std::string(PADDING, ' ');
 		}
@@ -108,7 +110,6 @@ void Board::draw(){
 			if(isAtCurrPos(j, i) || isAtCurrPos(j, i+1)) s += cursorCol + " ┃" + RESET;
 			else s += " ┃";
 		}
-		s += "\n";
 		buf.push_back(s);
 		s = std::string(PADDING, ' ');
 		
@@ -118,14 +119,21 @@ void Board::draw(){
 				if(isAtCurrPos(j, i)) s += cursorCol + "━━━" + RESET + "┻";
 				else s += "━━━┻";
 			}
-			if(isAtCurrPos(j, b-1)) s += cursorCol + "━━━" + RESET + "┛\n";
-			else s += "━━━┛\n"; 
+			if(isAtCurrPos(j, b-1)) s += cursorCol + "━━━" + RESET + "┛";
+			else s += "━━━┛"; 
 			buf.push_back(s);
 			s = std::string(PADDING, ' ');
 		}
 	}
-	for(auto str: buf) std::cout << str;
+	//for(auto str: buf) std::cout << str;
 	//std::cout << noOfWhiteDisks << " " << noOfBlackDisks << "\n"; //debugging code
+}
+
+void Board::draw(){
+	buf.clear();
+	updateBoardOntoBuffer();
+	displayControls(buf);
+	for(auto str: buf) std::cout << str << "\n";
 }
 
 void Board::getMove(){
