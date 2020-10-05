@@ -9,6 +9,7 @@
 
 const int LENGTH =  8;
 const int BREADTH = 8;
+const int PADDING = 4;
 
 enum TURN{
 	PLAYER_ONE,
@@ -62,7 +63,7 @@ Board::Board(){
 
 void Board::draw(){
 	std::vector<std::string> buf;
-	std::string s = "";
+	std::string s = std::string(PADDING, ' ');
 	for(int j = 0; j < l; ++j){
 		if(j == 0){
 			s += "┏";
@@ -73,7 +74,7 @@ void Board::draw(){
 				if(isAtCurrPos(j, b-1)) s += cursorCol + "━━━" + RESET +"┓\n";
 				else s += "━━━┓\n"; 
 				buf.push_back(s);
-				s = "";
+				s = std::string(PADDING, ' ');
 		}
 
 		if(j > 0 && j < l){
@@ -85,7 +86,7 @@ void Board::draw(){
 			if(isAtCurrPos(j-1, b-1)|| isAtCurrPos(j, b-1)) s += cursorCol + "━━━" + RESET +"┫\n";
 			else s += "━━━┫\n"; 
 			buf.push_back(s);
-			s = "";
+			s = std::string(PADDING, ' ');
 		}
 
 		if(isAtCurrPos(j, 0)) s += cursorCol + "┃" + RESET;	
@@ -108,7 +109,7 @@ void Board::draw(){
 		}
 		s += "\n";
 		buf.push_back(s);
-		s = "";
+		s = std::string(PADDING, ' ');
 		
 		if(j == l-1){
 			s += "┗";
@@ -119,7 +120,7 @@ void Board::draw(){
 			if(isAtCurrPos(j, b-1)) s += cursorCol + "━━━" + RESET + "┛\n";
 			else s += "━━━┛\n"; 
 			buf.push_back(s);
-			s = "";
+			s = std::string(PADDING, ' ');
 		}
 	}
 	for(auto str: buf) std::cout << str;

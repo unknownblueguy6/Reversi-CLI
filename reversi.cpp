@@ -1,13 +1,13 @@
 #include "board.hpp"
-
+#include "display.hpp"
 int main(){
 	Board board;
 	while(true){
-		system("clear"); 
+		system("clear");
+		displayBanner(); 
 		board.draw();
 		if(board.isGameOver()){
-			//placeholder text
-			std::cout << "Game Over\n";
+			board.declareWinner();
 			break;
 		}
 		board.getMove();
