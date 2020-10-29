@@ -25,6 +25,6 @@ Black moves first.
 1. Add info to README + prettify.
 2. ~~Add Win condition check.~~ 
 3. Implement AI player.
-4. Make menu for the game.
-5. Add instructions to play. 
+4. ~~Make menu for the game.~~
+5. ~~Add instructions to play.~~ 
 5. Refactor code/directories.
