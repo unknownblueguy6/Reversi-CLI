@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <iomanip>
+#include "init.hpp"
 #include "colour.hpp"
 #include "board.hpp"
 
@@ -29,4 +31,33 @@ void displayControls(std::vector<std::string> &buf)
     for(int i = 0; i < controls.size(); ++i){
         buf[i] += "  " + controls[i];
     }
+}
+
+void showMenu()
+{
+    int ch;
+    do
+    {
+        displayBanner();
+        std::cout << std::setw(10);
+        std::cout << BLUE << "Maximise Terminal or press F11 for the optimal experience" << RESET;
+        std::cout << "\n\n";
+        std::cout << std::setw(21) << "Choose Game Mode:\n";
+        std::cout << std::setw(10);
+        std::cout << RED << "1. VS. COMPUTER\n";
+        std::cout << std::setw(10);
+        std::cout << GREEN << "2. VS. HUMAN\n\n" << RESET;
+        std::cout << "   ";
+        std::cin >> ch;
+
+        if (ch < 1 || ch > 2)
+        {
+            std::cout << RED << "Invalid Choice. Try again\n";
+            auto c = getch();
+        }
+        else
+            gameMode = (GAME_MODE)ch;
+        system("clear");
+
+    } while (ch < 1 || ch > 4);
 }

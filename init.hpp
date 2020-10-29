@@ -1,5 +1,15 @@
+#pragma once
+
 #include <unistd.h>
 #include <termios.h>
+
+enum GAME_MODE
+{
+	COMPUTER = 1,
+	HUMAN,
+};
+
+GAME_MODE gameMode;
 
 using KEY = char;
 
