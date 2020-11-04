@@ -13,6 +13,7 @@ class Cell{
 		Cell();
 		void flip();
 		friend class Board;
+		friend class Computer;
 
 	private:
 		Cell_States state;

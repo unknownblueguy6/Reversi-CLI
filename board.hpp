@@ -35,6 +35,9 @@ class Board
 		bool isValidIndex(int , int);
 		int  setDirX(int);
 		int  setDirY(int);
+
+		friend class Computer;
+		TURN turn;
 		
 	private:
 		int l;
@@ -43,7 +46,6 @@ class Board
 		int y;
 		int noOfBlackDisks;
 		int noOfWhiteDisks;
-		TURN turn;
 		COLOUR cursorCol;
 		std::vector<std::string> buf;
 		std::vector<std::vector<Cell>> cells;

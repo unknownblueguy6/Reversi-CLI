@@ -1,10 +1,12 @@
 #include "board.hpp"
 #include "display.hpp"
+#include "computer.hpp"
 
 int main(){
 	system("clear");
 	showMenu();
-
+	Computer comp; 
+	TURN currTurn = PLAYER_ONE;
 	Board board;
 	while(true){
 		system("clear");
@@ -14,6 +16,11 @@ int main(){
 			board.declareWinner();
 			break;
 		}
-		board.getMove();
+		if(gameMode == HUMAN) board.getMove();
+		else{
+			if(currTurn == PLAYER_ONE) board.getMove();
+			else comp.makeMove(board);
+		}
+		currTurn = board.turn;
 	}
 }
