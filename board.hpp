@@ -135,6 +135,7 @@ void Board::draw(){
 	buf.clear();
 	updateBoardOntoBuffer();
 	displayControls(buf);
+	displayScore(noOfBlackDisks, noOfWhiteDisks, buf);
 	for(auto str: buf) std::cout << str << "\n";
 }
 
@@ -276,9 +277,9 @@ bool Board::isGameOver(){
 void Board::declareWinner(){
 	std::cout << "\n";
 	std::string winner_text;
-	if(noOfBlackDisks > noOfWhiteDisks) winner_text = "Player One is the Winner!";
-	else if(noOfWhiteDisks > noOfBlackDisks) winner_text = "Player Two is the Winner!";
-	else winner_text = "It is a Tie!";
+	if(noOfBlackDisks > noOfWhiteDisks) winner_text = "    Player One is the Winner!";
+	else if(noOfWhiteDisks > noOfBlackDisks) winner_text = "    Player Two is the Winner!";
+	else winner_text = "    It is a Tie!";
 	std::cout << GREEN << winner_text << "\n" << RESET;
 }
 

@@ -19,9 +19,11 @@ void displayBanner(){
     std::cout << "\n\n\n"; 
 }
 
+std::vector<std::string> controls;
+
 void displayControls(std::vector<std::string> &buf)
 {
-    std::vector<std::string> controls = {
+    controls = {
         "CONTROLS : ",
         GREEN + "Green Cursor " + RESET + ": Disk can be placed",
         RED + "Red Cursor "  + RESET + ": Disk cannot be placed",
@@ -31,6 +33,13 @@ void displayControls(std::vector<std::string> &buf)
     for(int i = 0; i < controls.size(); ++i){
         buf[i] += "  " + controls[i];
     }
+}
+
+void displayScore(int score1, int score2, std::vector<std::string> &buf){
+    int i = controls.size() + 5;
+    buf[i++] += "               SCORE         ";
+    buf[i++] += BLUE + "  BLACK : " + std::to_string(score1) + "             WHITE : " + std::to_string(score2) + RESET;
+
 }
 
 void showMenu()
